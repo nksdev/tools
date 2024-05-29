@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Editor with Live Preview</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #editor {
+    width: 100%;
+    min-height: 200px;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+  }
+  #preview {
+    width: 100%;
+    min-height: 200px;
+    overflow: auto;
+    box-sizing: border-box;
+  }
+  .glass-bg {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+  }
+  .footer {
+    text-align: center;
+    padding: 10px 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    margin-top: auto;
+  }
+
+  @media (min-width: 768px) {
+    #editor, #preview {
+      min-height: 300px;
+    }
+  }
+</style>
+</head>
+<body class="bg-gradient-to-r from-blue-400 to-purple-500">
+  <div class="container mx-auto my-10">
+    <h1 class="text-center text-3xl text-white mb-4">Code Editor with Live Preview</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="glass-bg rounded-lg p-4">
+        <textarea id="editor" class="form-textarea rounded-lg focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="Enter your HTML, CSS, or JavaScript code here..."></textarea>
+        <button id="saveBtn" class="mt-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save File</button>
+        <button id="clearBtn" class="mt-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Clear Editor</button>
+        <input type="file" id="fileInput" class="mt-2 block" accept=".html,.txt">
+      </div>
+      <div class="glass-bg rounded-lg p-4">
+        <div id="preview" class="border p-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://www.instagram.com/namanmic/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400">
+      Design by NKSDEV <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram" class="inline-block w-6 h-6 ml-2" />
+    </a>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    function updatePreview() {
+      const code = editor.value;
+      preview.innerHTML = code;
+    }
+
+    editor.addEventListener('input', updatePreview);
+    updatePreview(); // Initial preview update
+
+    saveBtn.addEventListener('click', () => {
+      const content = editor.value;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'code.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      editor.value = '';
+      updatePreview();
+    });
+
+    document.addEventListener('contextmenu', event => event.preventDefault()); // Disable right-click
+    document.onkeydown = function(e) {
+      if (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 123)) {
+        return false; // Disable view source and inspect
+      }
+    };
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        editor.value = content;
+        updatePreview();
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
